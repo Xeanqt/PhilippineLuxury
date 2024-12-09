@@ -1,0 +1,47 @@
+// Main JavaScript functionality
+document.addEventListener('DOMContentLoaded', () => {
+    // Handle link clicks
+    function handleLinkClick(event) {
+        const link = event.currentTarget;
+        if (link.dataset.hydrated) {
+            link.removeEventListener('click', handleLinkClick);
+            return;
+        }
+        
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const href = link.getAttribute('href');
+        if (!href) return;
+        
+        const isNewTab = /Mac|iPod|iPhone|iPad/u.test(navigator.userAgent) ? 
+            event.metaKey : event.ctrlKey;
+            
+        if (isNewTab) {
+            window.open(href, '_blank');
+            return;
+        }
+        
+        const rel = link.getAttribute('rel') ?? '';
+        const target = link.getAttribute('target') ?? '';
+        
+        navigateToUrl(href, rel, target);
+    }
+    
+    function navigateToUrl(url, rel, target) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = target;
+        a.rel = rel;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    }
+    
+    // Initialize link handlers
+    document.querySelectorAll('[data-nested-link]').forEach(link => {
+        if (link instanceof HTMLElement) {
+            link.addEventListener('click', handleLinkClick);
+        }
+    });
+});
